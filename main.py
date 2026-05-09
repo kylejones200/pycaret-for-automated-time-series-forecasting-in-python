@@ -7,6 +7,12 @@ Automated time series forecasting with minimal code.
 import sys
 from pathlib import Path
 
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 # Add src to path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -40,10 +46,10 @@ def main():
         value_column=config["data"].get("value_col", "value")
     )
     
-    print(f"Loaded {len(series)} data points")
+    logger.info(f"Loaded {len(series)} data points")
     
     # Setup PyCaret time series environment
-    print("\nSetting up PyCaret time series environment...")
+    logger.info("\nSetting up PyCaret time series environment...")
     s = setup(
         data=series.values,
         fh=config["model"]["forecast_horizon"],
@@ -52,25 +58,25 @@ def main():
     )
     
     # Compare models
-    print("Comparing models...")
+    logger.info("Comparing models...")
     best_model = compare_models(
         include=config["model"].get("models", ["arima", "exp_smooth", "theta"]),
         sort=config["model"].get("sort_metric", "MAE"),
         verbose=False,
     )
     
-    print(f"\nBest model: {best_model}")
+    logger.info(f"\nBest model: {best_model}")
     
     # Finalize model
-    print("Finalizing model...")
+    logger.info("Finalizing model...")
     final_model = finalize_model(best_model)
     
     # Generate forecast
-    print("Generating forecast...")
+    logger.info("Generating forecast...")
     forecast = predict_model(final_model, fh=config["model"]["forecast_horizon"])
     
     # Create visualization
-    print("\nCreating visualization...")
+    logger.info("\nCreating visualization...")
     plot_model(final_model, plot="forecast", save=True, verbose=False)
     
     # Also create custom plot
@@ -113,9 +119,9 @@ def main():
     if config.get("output", {}).get("save_plots", True):
         output_dir = ensure_output_dir(get_output_dir(config, script_dir))
         save_plot(fig, output_dir / "pycaret_forecast.png", dpi=300)
-        print(f"Plot saved to: {output_dir / 'pycaret_forecast.png'}")
+        logger.info(f"Plot saved to: {output_dir / 'pycaret_forecast.png'}")
     
-    print("\n PyCaret forecasting complete")
+    logger.info("\n PyCaret forecasting complete")
     
     if config.get("plotting", {}).get("show_plot", True):
         plt.show()
