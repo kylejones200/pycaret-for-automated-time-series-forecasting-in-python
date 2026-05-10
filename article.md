@@ -27,16 +27,12 @@ Using PyCaret for time series involves five main steps:
 Let's use a dataset of monthly sales data.
 
     # Create a sample time series dataset
-    data = pd.Series(
-        [112, 118, 132, 129, 121, 135, 148, 148, 136, 119, 104, 118] * 10,
-        name="Sales"
-    )
-    data.index = pd.date_range(start="2010-01-01", periods=len(data), freq="M")
+data = pd.Series( [112, 118, 132, 129, 121, 135, 148, 148, 136, 119, 104, 118] * 10, name="Sales" ) data.index = pd.date_range(start="2010-01-01", periods=len(data), freq="M")
 
     # Convert to DataFrame
-    df = data.to_frame()
+df = data.to_frame()
 
-    print(df.head())
+print(df.head())
 
 ## Initialize PyCaret for Time Series
 
@@ -51,34 +47,25 @@ The `setup` function initializes the PyCaret pipeline. Key arguments in `setup`:
 <!-- -->
 
     # Initialize time series experiment
-    exp = TSForecastingExperiment()
+exp = TSForecastingExperiment()
 
     # Setup the environment
-    exp.setup(
-        data=df,
-        target="Sales",
-        session_id=123,
-        seasonal_period=12
-    )
+exp.setup( data=df, target="Sales", session_id=123, seasonal_period=12 )
 
     # Compare models
-    best_model = exp.compare_models()
+best_model = exp.compare_models()
 
     # Tune the best model
-    tuned_model = exp.tune_model(best_model)
+tuned_model = exp.tune_model(best_model)
 
     # Make predictions
-    future_forecast = exp.predict_model(tuned_model, fh=12)
-    print("\nForecast:")
-    print(future_forecast)
+future_forecast = exp.predict_model(tuned_model, fh=12) print("\nForecast:") print(future_forecast)
 
     # Plot results
-    exp.plot_model(tuned_model, plot="forecast")
+exp.plot_model(tuned_model, plot="forecast")
 
     # Get metrics
-    metrics = exp.pull()
-    print("\nMetrics:")
-    print(metrics)
+metrics = exp.pull() print("\nMetrics:") print(metrics)
 
 ## Compare and Train Models
 
@@ -95,27 +82,19 @@ This step automates model selection by testing various algorithms (e.g., ARIMA, 
 We can save the model and load the saved model.
 
     # Save and load model
-    exp.save_model(tuned_model, "time_series_model")
-    loaded_model = exp.load_model("time_series_model")
+exp.save_model(tuned_model, "time_series_model") loaded_model = exp.load_model("time_series_model")
 
     # Multivariate analysis
-    df["Marketing_Spend"] = [50 + (i % 10) for i in range(len(df))]
+df["Marketing_Spend"] = [50 + (i % 10) for i in range(len(df))]
 
     # New experiment for multivariate analysis
-    exp_multi = TSForecastingExperiment()
+exp_multi = TSForecastingExperiment()
 
-    exp_multi.setup(
-        data=df,
-        target="Sales",
-        session_id=123
-    )
+exp_multi.setup( data=df, target="Sales", session_id=123 )
 
-    best_multivariate_model = exp_multi.compare_models()
-    future_forecast_multivariate = exp_multi.predict_model(best_multivariate_model, fh=12)
-    print("\nMultivariate forecast:")
-    print(future_forecast_multivariate)
+best_multivariate_model = exp_multi.compare_models() future_forecast_multivariate = exp_multi.predict_model(best_multivariate_model, fh=12) print("\nMultivariate forecast:") print(future_forecast_multivariate)
 
-    exp_multi.plot_model(best_multivariate_model, plot="forecast")
+exp_multi.plot_model(best_multivariate_model, plot="forecast")
 
 ## Multivariate Time Series
 
