@@ -32,7 +32,7 @@ from src import (
 from pycaret.time_series import *
 
 
-def main():
+def main(plot: bool = False):
     """Main execution function."""
     script_dir = Path(__file__).parent
     
@@ -80,53 +80,54 @@ def main():
     plot_model(final_model, plot="forecast", save=True, verbose=False)
     
     # Also create custom plot
-    fig, ax = plt.subplots(figsize=config.get("plotting", {}).get("figure_size", [12, 6]))
+    if plot:
+        fig, ax = plt.subplots(figsize=config.get("plotting", {}).get("figure_size", [12, 6]))
     
-    ax.plot(
-        series.index[-100:] if len(series) > 100 else series.index,
-        series.values[-100:] if len(series) > 100 else series.values,
-        "k-",
-        linewidth=config.get("plotting", {}).get("linewidth", 1.5),
-        alpha=config.get("plotting", {}).get("alpha", 0.8),
-        label="Historical",
-    )
+        ax.plot(
+            series.index[-100:] if len(series) > 100 else series.index,
+            series.values[-100:] if len(series) > 100 else series.values,
+            "k-",
+            linewidth=config.get("plotting", {}).get("linewidth", 1.5),
+            alpha=config.get("plotting", {}).get("alpha", 0.8),
+            label="Historical",
+        )
     
     # Create forecast index
-    forecast_horizon = config["model"]["forecast_horizon"]
-    forecast_index = pd.date_range(
-        start=series.index[-1] + pd.Timedelta(days=1),
-        periods=forecast_horizon,
-        freq=pd.infer_freq(series.index) or "D"
-    )
+        forecast_horizon = config["model"]["forecast_horizon"]
+        forecast_index = pd.date_range(
+            start=series.index[-1] + pd.Timedelta(days=1),
+            periods=forecast_horizon,
+            freq=pd.infer_freq(series.index) or "D"
+        )
     
-    forecast_values = forecast.values.flatten()[:forecast_horizon]
-    ax.plot(
-        forecast_index,
-        forecast_values,
-        "r--",
-        linewidth=config.get("plotting", {}).get("linewidth", 1.5),
-        label="PyCaret Forecast",
-    )
+        forecast_values = forecast.values.flatten()[:forecast_horizon]
+        ax.plot(
+            forecast_index,
+            forecast_values,
+            "r--",
+            linewidth=config.get("plotting", {}).get("linewidth", 1.5),
+            label="PyCaret Forecast",
+        )
     
-    ax.set_xlabel("Date")
-    ax.set_ylabel("Value")
-    ax.set_title("PyCaret Time Series Forecast")
-    ax.legend(loc="best")
-    ax.grid(True, alpha=0.3)
+        ax.set_xlabel("Date")
+        ax.set_ylabel("Value")
+        ax.set_title("PyCaret Time Series Forecast")
+        ax.legend(loc="best")
+        ax.grid(True, alpha=0.3)
     
-    plt.tight_layout()
+        plt.tight_layout()
     
-    if config.get("output", {}).get("save_plots", True):
-        output_dir = ensure_output_dir(get_output_dir(config, script_dir))
-        save_plot(fig, output_dir / "pycaret_forecast.png", dpi=300)
-        logger.info(f"Plot saved to: {output_dir / 'pycaret_forecast.png'}")
+        if config.get("output", {}).get("save_plots", True):
+            output_dir = ensure_output_dir(get_output_dir(config, script_dir))
+            save_plot(fig, output_dir / "pycaret_forecast.png", dpi=300)
+            logger.info(f"Plot saved to: {output_dir / 'pycaret_forecast.png'}")
     
-    logger.info("\n PyCaret forecasting complete")
+        logger.info("\n PyCaret forecasting complete")
     
-    if config.get("plotting", {}).get("show_plot", True):
-        plt.show()
-    else:
-        plt.close(fig)
+        if config.get("plotting", {}).get("show_plot", True):
+            plt.show()
+        else:
+            plt.close(fig)
 
 
 if __name__ == "__main__":
