@@ -4,7 +4,6 @@ PyCaret: Low-Code Time Series Forecasting
 Automated time series forecasting with minimal code.
 """
 
-import sys
 from pathlib import Path
 
 import logging
@@ -16,7 +15,6 @@ logger = logging.getLogger(__name__)
 # Add src to path
 
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 
 # Import consolidated utilities (signalplot already applied in src/__init__.py)
@@ -49,7 +47,7 @@ def main(plot: bool = False):
     
     # Setup PyCaret time series environment
     logger.info("\nSetting up PyCaret time series environment...")
-    s = setup(
+    setup(
         data=series.values,
         fh=config["model"]["forecast_horizon"],
         session_id=config["model"].get("session_id", 42),
